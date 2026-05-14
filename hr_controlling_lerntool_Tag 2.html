@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR-Controlling | Interaktives Lerntool – Tag 2</title>
+<style>
+  :root {
+    --primary: #1a3a5c;
+    --primary-light: #2a5a8c;
+    --accent: #e8a020;
+    --accent-light: #f5c060;
+    --correct: #1a7a3c;
+    --correct-bg: #e8f5ee;
+    --wrong: #9b1c1c;
+    --wrong-bg: #fdf0f0;
+    --neutral-bg: #f5f7fa;
+    --card-bg: #ffffff;
+    --text: #1a1a2e;
+    --text-muted: #5a6070;
+    --border: #d8dde8;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--neutral-bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+  }
+  .header-left h1 { font-size: 1.4rem; font-weight: 700; }
+  .header-left p { font-size: 0.85rem; opacity: 0.8; margin-top: 2px; }
+  .header-badge {
+    background: var(--accent);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* MAIN */
+  .main { max-width: 900px; margin: 0 auto; padding: 28px 16px 60px; }
+
+  /* HOME SCREEN */
+  #home-screen { display: block; }
+  .intro-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+    border-left: 4px solid var(--accent);
+  }
+  .intro-card h2 { font-size: 1.15rem; color: var(--primary); margin-bottom: 10px; }
+  .intro-card p { color: var(--text-muted); font-size: 0.92rem; }
+
+  .blocks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .block-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .block-card:hover {
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  }
+  .block-card.completed { border-color: var(--correct); }
+  .block-number {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .block-title { font-size: 1rem; font-weight: 600; color: var(--primary); margin-bottom: 10px; }
+  .block-meta { font-size: 0.82rem; color: var(--text-muted); }
+  .block-progress {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 14px;
+    overflow: hidden;
+  }
+  .block-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .block-score-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: var(--neutral-bg);
+    color: var(--text-muted);
+  }
+  .block-score-badge.done { background: var(--correct-bg); color: var(--correct); }
+
+  /* QUIZ SCREEN */
+  #quiz-screen { display: none; }
+
+  .quiz-nav {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+  .btn-back {
+    background: none;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 14px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-back:hover { border-color: var(--primary); color: var(--primary); }
+
+  .quiz-progress-info { flex: 1; }
+  .quiz-progress-info .label { font-size: 0.8rem; color: var(--text-muted); }
+  .quiz-progress-info .title { font-size: 1rem; font-weight: 700; color: var(--primary); }
+
+  .quiz-progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .quiz-progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  .question-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .question-tag {
+    background: var(--primary);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+  .question-tag.application { background: var(--accent); }
+
+  .question-text {
+    font-size: 1.02rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .question-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  /* OPTIONS */
+  .options-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .option-item {
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: white;
+  }
+  .option-item:hover:not(.locked) {
+    border-color: var(--primary-light);
+    background: #f0f4fa;
+  }
+  .option-item.selected {
+    border-color: var(--primary);
+    background: #eef3fb;
+  }
+  .option-item.correct-reveal {
+    border-color: var(--correct);
+    background: var(--correct-bg);
+  }
+  .option-item.wrong-reveal {
+    border-color: var(--wrong);
+    background: var(--wrong-bg);
+  }
+  .option-item.missed-reveal {
+    border-color: var(--correct);
+    background: #f0fbf4;
+    opacity: 0.85;
+  }
+  .option-item.locked { cursor: default; }
+
+  .option-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.15s;
+    background: white;
+  }
+  .option-item.selected .option-checkbox {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+  }
+  .option-item.correct-reveal .option-checkbox {
+    background: var(--correct);
+    border-color: var(--correct);
+    color: white;
+  }
+  .option-item.wrong-reveal .option-checkbox {
+    background: var(--wrong);
+    border-color: var(--wrong);
+    color: white;
+  }
+  .option-item.missed-reveal .option-checkbox {
+    background: var(--correct);
+    border-color: var(--correct);
+    color: white;
+    opacity: 0.7;
+  }
+
+  .option-content { flex: 1; }
+  .option-text { font-size: 0.93rem; line-height: 1.45; }
+  .option-feedback {
+    display: none;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.83rem;
+    line-height: 1.4;
+  }
+  .option-item.correct-reveal .option-feedback,
+  .option-item.wrong-reveal .option-feedback,
+  .option-item.missed-reveal .option-feedback {
+    display: block;
+  }
+  .option-item.correct-reveal .option-feedback {
+    background: rgba(26,122,60,0.1);
+    color: var(--correct);
+  }
+  .option-item.wrong-reveal .option-feedback {
+    background: rgba(155,28,28,0.1);
+    color: var(--wrong);
+  }
+  .option-item.missed-reveal .option-feedback {
+    background: rgba(26,122,60,0.08);
+    color: #2a6a40;
+  }
+
+  /* ACTIONS */
+  .question-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .btn-submit {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-submit:hover:not(:disabled) {
+    background: var(--primary-light);
+    transform: translateY(-1px);
+  }
+  .btn-submit:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  .btn-next {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+  }
+  .btn-next:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-next.visible { display: block; }
+
+  .result-inline {
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 8px;
+    display: none;
+  }
+  .result-inline.correct { background: var(--correct-bg); color: var(--correct); display: block; }
+  .result-inline.wrong { background: var(--wrong-bg); color: var(--wrong); display: block; }
+
+  /* RESULT SCREEN */
+  #result-screen { display: none; }
+
+  .result-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 36px 32px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .result-icon { font-size: 3rem; margin-bottom: 14px; }
+  .result-card h2 { font-size: 1.3rem; color: var(--primary); margin-bottom: 8px; }
+  .result-card p { color: var(--text-muted); font-size: 0.93rem; margin-bottom: 20px; }
+  .result-score {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 10px 0;
+  }
+  .result-score span { font-size: 1.2rem; color: var(--text-muted); font-weight: 400; }
+  .result-bar-outer {
+    height: 12px;
+    background: var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    max-width: 300px;
+    margin: 0 auto 24px;
+  }
+  .result-bar-inner {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.8s ease;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-home {
+    background: none;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-home:hover { background: var(--primary); color: white; }
+
+  .btn-retry {
+    background: var(--accent);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-retry:hover { background: var(--accent-light); }
+
+  /* OVERALL RESULT */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .summary-item {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .summary-item .s-label { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 4px; }
+  .summary-item .s-score { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+  .summary-item .s-max { font-size: 0.8rem; color: var(--text-muted); }
+
+  /* OVERALL PROGRESS BAR ON HOME */
+  .overall-progress {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .overall-progress .op-label { font-size: 0.85rem; font-weight: 600; color: var(--primary); flex: 1; min-width: 120px; }
+  .overall-progress .op-bar { flex: 3; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; min-width: 120px; }
+  .overall-progress .op-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 4px; transition: width 0.5s; }
+  .overall-progress .op-score { font-size: 1rem; font-weight: 700; color: var(--primary); white-space: nowrap; }
+
+  @media (max-width: 600px) {
+    .header { padding: 18px 16px; }
+    .main { padding: 18px 10px 50px; }
+    .question-card { padding: 20px 16px; }
+    .result-card { padding: 24px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>HR-Controlling &nbsp;·&nbsp; Interaktives Lerntool</h1>
+    <p>Kompaktlehrgang HR-Controlling | Tag 2 – Operative Exzellenz &amp; Funktionscontrolling</p>
+  </div>
+  <div class="header-badge">25 Fragen · 5 Blöcke</div>
+</div>
+
+<div class="main">
+
+  <!-- HOME SCREEN -->
+  <div id="home-screen">
+    <div class="intro-card">
+      <h2>Wie funktioniert das Tool?</h2>
+      <p>Wähle einen Themenblock aus. Pro Block gibt es 5 Fragen im Multiple-Choice-Format – manche haben eine, andere mehrere richtige Antworten. Nach der Auswahl erhältst du zu jeder Antwortoption eine kurze Begründung. Einen Punkt gibt es nur bei vollständig korrekter Auswahl.</p>
+    </div>
+
+    <div class="overall-progress" id="overall-progress" style="display:none;">
+      <div class="op-label">Gesamtfortschritt</div>
+      <div class="op-bar"><div class="op-fill" id="overall-fill" style="width:0%"></div></div>
+      <div class="op-score" id="overall-score-text">0 / 25 Punkte</div>
+    </div>
+
+    <div class="blocks-grid" id="blocks-grid"></div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quiz-screen">
+    <div class="quiz-nav">
+      <button class="btn-back" onclick="goHome()">&#8592; Übersicht</button>
+      <div class="quiz-progress-info">
+        <div class="label" id="quiz-block-label"></div>
+        <div class="title" id="quiz-block-title"></div>
+      </div>
+      <div style="font-size:0.85rem;color:var(--text-muted);font-weight:600;" id="quiz-counter"></div>
+    </div>
+    <div class="quiz-progress-bar"><div class="quiz-progress-bar-fill" id="quiz-prog-fill" style="width:0%"></div></div>
+    <div id="question-container"></div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="result-screen">
+    <div class="result-card" id="result-card-main"></div>
+    <div class="result-actions">
+      <button class="btn-home" onclick="goHome()">&#8592; Zur Übersicht</button>
+      <button class="btn-retry" id="btn-retry-block">Block wiederholen</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// =============================================
+// DATA – 5 blocks × 5 questions
+// Q = { id, type:'knowledge'|'application', text, hint, options:[{text,correct,feedback}] }
+// =============================================
+const BLOCKS = [
+  {
+    id: 'b1',
+    number: 'Block 1',
+    title: 'Operative Exzellenz & Employee-Life-Cycle',
+    questions: [
+      // Q1 – KNOWLEDGE
+      {
+        id:'b1q1', type:'knowledge',
+        text: 'Welche vier Grundfragen beschreiben operative Exzellenz im HR-Controlling laut den Unterlagen?',
+        hint: 'Eine Antwort ist richtig.',
+        options:[
+          {text:'Werden die richtigen HR-Leistungen erbracht, mit vertretbarem Ressourceneinsatz, in der benötigten Qualität und tragen sie messbar zur Stabilität und Entwicklung der Organisation bei?', correct:true, feedback:'Richtig. Diese vier Fragen bilden das Grundgerüst operativer Exzellenz im HR-Controlling und decken Effektivität, Effizienz, Qualität und Wirkungsbeitrag ab.'},
+          {text:'Wie hoch sind die Personalkosten, wie schnell werden Stellen besetzt, wie zufrieden sind Mitarbeitende und wie hoch ist die Fluktuation?', correct:false, feedback:'Falsch. Diese Größen sind zwar relevante Kennzahlen, entsprechen aber nicht den vier definierten Grundfragen operativer Exzellenz.'},
+          {text:'Sind die HR-Prozesse digitalisiert, sind Kennzahlen vorhanden, ist das Reporting automatisiert und sind Benchmarks definiert?', correct:false, feedback:'Falsch. Digitalisierung und Automatisierung sind Umsetzungsfragen, nicht die inhaltlichen Grundfragen operativer Exzellenz.'},
+          {text:'Wie viele Mitarbeitende hat das Unternehmen, welche Qualifikationen besitzen sie, wie alt sind sie im Durchschnitt und wie lange gehören sie dem Unternehmen an?', correct:false, feedback:'Falsch. Das sind Strukturkennzahlen, die beschreiben, wie die Belegschaft zusammengesetzt ist – aber keine Fragen operativer Exzellenz.'}
+        ]
+      },
+      // Q2 – KNOWLEDGE
+      {
+        id:'b1q2', type:'knowledge',
+        text: 'Welche Kennzahlentypen unterscheidet das HR-Controlling entlang des Employee-Life-Cycle?',
+        hint: 'Mehrere Antworten sind richtig.',
+        options:[
+          {text:'Strukturkennzahlen', correct:true, feedback:'Richtig. Strukturkennzahlen beschreiben Bestand und Zusammensetzung der Belegschaft, z.B. FTE, Altersstruktur oder Teilzeitquote.'},
+          {text:'Prozesskennzahlen', correct:true, feedback:'Richtig. Prozesskennzahlen messen die Qualität und Geschwindigkeit einzelner HR-Prozesse, z.B. Time-to-Hire oder Drop-out-Quote.'},
+          {text:'Effizienzkennzahlen', correct:true, feedback:'Richtig. Effizienzkennzahlen setzen Ergebnisse in Beziehung zum Ressourceneinsatz, z.B. Cost-per-Hire oder Weiterbildungskosten pro FTE.'},
+          {text:'Effektivitäts- und Wirkungskennzahlen', correct:true, feedback:'Richtig. Diese Kennzahlen zeigen den Beitrag eines HR-Prozesses zum gewünschten Ergebnis, z.B. Qualität der Neueinstellungen oder Kompetenzdeckungsgrad.'},
+          {text:'Benchmarkkennzahlen', correct:false, feedback:'Falsch. Benchmarks sind ein Instrument der Interpretation, kein eigenständiger Kennzahlentyp im beschriebenen System.'}
+        ]
+      },
+      // Q3 – APPLICATION
+      {
+        id:'b1q3', type:'application',
+        text: 'Ein Unternehmen besetzt Stellen sehr rasch, verzeichnet aber hohe Frühfluktuation bei Neueinstellungen. Was lässt sich daraus aus Sicht des HR-Controllings schlussfolgern?',
+        hint: 'Eine Antwort ist richtig.',
+        options:[
+          {text:'Das Recruiting-Tempo ist zu niedrig – weitere Beschleunigung würde die Frühfluktuation reduzieren.', correct:false, feedback:'Falsch. Das Tempo ist offensichtlich hoch; das Problem liegt nicht an zu langsamem, sondern möglicherweise an zu unkritischem Auswahlvorgehen.'},
+          {text:'Operative Exzellenz ist nicht allein an Prozessgeschwindigkeit zu messen – ein rascher Auswahlprozess kann Fehlbesetzungen begünstigen und damit nachgelagerte Probleme verursachen.', correct:true, feedback:'Richtig. Genau diese Problematik wird in den Unterlagen beschrieben: Zu rasche Auswahl kann Qualitätsmängel produzieren, die sich später als Frühfluktuation zeigen.'},
+          {text:'Frühfluktuation ist grundsätzlich unbedenklich und kein Steuerungsthema.', correct:false, feedback:'Falsch. Frühfluktuation ist ein wichtiger Indikator für Fehlbesetzungen oder Onboarding-Mängel und hat direkte Kostenfolgen.'},
+          {text:'Die Ursache liegt ausschließlich im Onboarding, das Recruiting-Controlling ist nicht betroffen.', correct:false, feedback:'Falsch. Frühfluktuation signalisiert Probleme, die ihren Ursprung sowohl im Recruiting (Passung) als auch im Onboarding haben können – beide Bereiche sind zu analysieren.'}
+        ]
+      },
+      // Q4 – APPLICATION
+      {
+        id:'b1q4', type:'application',
+        text: 'Ein HR-Bericht weist eine steigende Personalkostenquote aus. Welche Interpretation ist aus Controlling-Sicht angemessen?',
+        hint: 'Mehrere Antworten können richtig sein.',
+        options:[
+          {text:'Eine steigende Personalkostenquote ist immer ein Zeichen für ineffizienten Personaleinsatz.', correct:false, feedback:'Falsch. Die Unterlagen betonen ausdrücklich, dass eine steigende Personalkostenquote auch Folge bewusster Qualifizierungs- oder Bindungsstrategien sein kann – eine mechanische Interpretation greift zu kurz.'},
+          {text:'Die Kennzahl ist kontextabhängig zu interpretieren und mit anderen Größen wie Qualifikationsniveau oder Umsatzentwicklung zu verbinden.', correct:true, feedback:'Richtig. Effizienzkennzahlen haben ihren vollen Aussagewert erst im Zusammenhang mit Qualitäts- und Wirkungsgrößen.'},
+          {text:'Sie kann auf Ineffizienz hindeuten, aber auch auf strategische Entscheidungen im Bereich Entwicklung oder Bindung zurückgehen.', correct:true, feedback:'Richtig. Beides ist möglich und muss durch Segmentierung und ergänzende Daten unterschieden werden.'},
+          {text:'Niedrige Kennzahlen sind grundsätzlich ein Qualitätsbeweis im HR.', correct:false, feedback:'Falsch. Niedrige Kosten sind kein Qualitätsbeweis – die Unterlagen warnen explizit vor dieser Fehlinterpretation.'}
+        ]
+      },
+      // Q5 – APPLICATION
+      {
+        id:'b1q5', type:'application',
+        text: 'Welche Anforderungen muss ein brauchbares HR-Kennzahlensystem aus Sicht des HR-Controllings erfüllen?',
+        hint: 'Mehrere Antworten sind richtig.',
+        options:[
+          {text:'Es sollte an den Unternehmenszielen ausgerichtet sein.', correct:true, feedback:'Richtig. Die Ausrichtung an Unternehmenszielen ist eine der drei Grundbedingungen eines brauchbaren HR-Kennzahlensystems.'},
+          {text:'Es sollte möglichst viele Kennzahlen umfassen, um vollständig zu sein.', correct:false, feedback:'Falsch. Die Unterlagen betonen ausdrücklich eine begrenzte Zahl gut definierter Kennzahlen – Vollständigkeit ist kein Qualitätsmerkmal.'},
+          {text:'Es sollte die zentralen HR-Kernprozesse abdecken.', correct:true, feedback:'Richtig. Die Abdeckung der HR-Kernprozesse ist die zweite Grundbedingung.'},
+          {text:'Es sollte mit vertretbarem Aufwand erhoben und regelmäßig interpretiert werden können.', correct:true, feedback:'Richtig. Praktikabilität und Interpretierbarkeit sind die dritte Grundbedingung.'},
+          {text:'Es sollte einen klaren Interpretationsrahmen enthalten, der Zielwerte, Berechnungslogik und typische Maßnahmenableitungen festlegt.', correct:true, feedback:'Richtig. Ohne definierten Interpretationsrahmen bleibt ein Kennzahlensystem wirkungslos.'}
+        ]
+      }
+    ]
+  },
+
+  {
+    id: 'b2',
+    number: 'Block 2',
+    title: 'PE-Controlling',
+    questions: [
+      // Q1 – KNOWLEDGE
+      {
+        id:'b2q1', type:'knowledge',
+        text: 'Welche Nutzenkategorien der Personalentwicklung unterscheidet das PE-Controlling aus Mitarbeiterperspektive?',
+        hint: 'Mehrere Antworten sind richtig.',
+        options:[
+          {text:'Anpassungs- und Sicherungsnutzen', correct:true, feedback:'Richtig. Die eigene Qualifikation bleibt arbeitsplatz- und arbeitsmarktrelevant, das Risiko von Überforderung oder Freisetzung sinkt.'},
+          {text:'Entwicklungsnutzen', correct:true, feedback:'Richtig. Ungenutzte Fähigkeiten werden erschlossen, Aufstiegs- und Einkommenschancen verbessern sich.'},
+          {text:'Identifikations- und Motivationsnutzen', correct:true, feedback:'Richtig. Mitarbeitende erleben, dass sie mit ihrem Wissen erkennbar zur Unternehmensentwicklung beitragen.'},
+          {text:'Wettbewerbsnutzen', correct:false, feedback:'Falsch. Der Wettbewerbsnutzen ist eine Nutzenkategorie aus Unternehmensperspektive, nicht aus Mitarbeiterperspektive.'}
+        ]
+      },
+      // Q2 – KNOWLEDGE
+      {
+        id:'b2q2', type:'knowledge',
+        text: 'Was beschreibt der Prozessschritt „vom Unternehmensziel zur Kennzahl" im PE-Controlling?',
+        hint: 'Eine Antwort ist richtig.',
+        options:[
+          {text:'Er beschreibt, wie Personalentwicklungsziele aus strategischen Unternehmenszielen abgeleitet und in Lernziele sowie messbare Kennzahlen überführt werden.', correct:true, feedback:'Richtig. Das ist die zentrale Prozesslogik des PE-Controllings: von strategischen Zielgrößen über PE-Ziele zu Lernzielen und schließlich zu Kennzahlen für Input, Prozess und Wirkung.'},
+          {text:'Er beschreibt, wie Mitarbeitende Feedback zu Weiterbildungsmaßnahmen geben und daraus Verbesserungen abgeleitet werden.', correct:false, feedback:'Falsch. Feedback ist ein Evaluationsinstrument, aber nicht der beschriebene Ableitungsprozess vom Unternehmensziel zur Kennzahl.'},
+          {text:'Er erklärt, wie HR-Kosten in der Buchhaltung erfasst und auf Kostenstellen verteilt werden.', correct:false, feedback:'Falsch. Das ist buchhalterisches Kostenmanagement, nicht PE-Controlling im beschriebenen Sinne.'},
+          {text:'Er beschreibt, wie Benchmarkvergleiche mit anderen Unternehmen angestellt werden.', correct:false, feedback:'Falsch. Benchmarking ist ein Analyseinstrument, aber nicht Gegenstand dieses Prozessschritts.'}
+        ]
+      },
+      // Q3 – APPLICATION
+      {
+        id:'b2q3', type:'application',
+        text: 'Ein Unternehmen berichtet eine hohe Weiterbildungsquote und viele Schulungstage pro Mitarbeitendem. Was lässt sich daraus allein ableiten?',
+        hint: 'Eine Antwort ist richtig.',
+        options:[
+          {text:'Die Personalentwicklung ist wirksam und erzielt nachweislich Ergebnisse.', correct:false, feedback:'Falsch. Weiterbildungsquote und Schulungstage sind Input-Kennzahlen. Sie zeigen, wie viel investiert wurde, sagen aber nichts über Transfer oder Wirkung aus.'},
+          {text:'Die Personalentwicklung hat einen erkennbaren Beitrag zur Innenfinanzierungskraft geleistet.', correct:false, feedback:'Falsch. Der Beitrag zu finanziellen Kennzahlen lässt sich nur über Wirkungsmessung belegen, nicht über Inputgrößen.'},
+          {text:'Es wurde in Weiterbildung investiert. Ob dieser Einsatz wirksam war, lässt sich nur über Wirkungskennzahlen beurteilen.', correct:true, feedback:'Richtig. Die Unterlagen betonen ausdrücklich: Hohe Input-Kennzahlen sagen noch nichts über Verhaltenswirkungen oder betriebliche Ergebnisverbesserungen aus.'},
+          {text:'Die strategische Qualität der PE ist gesichert, da hoher Aufwand betrieben wurde.', correct:false, feedback:'Falsch. Strategische Qualität bedeutet Anbindung an Unternehmensziele, nicht Umfang der Aktivitäten.'}
+        ]
+      },
+      // Q4 – APPLICATION
+      {
+        id:'b2q4', type:'application',
+        text: 'Ein Unternehmen möchte seine Innenfinanzierungskraft stärken und plant dazu eine Qualifizierung von Kostenstellen- und Profit-Center-Verantwortlichen. Wie würde ein belastbarer PE-Controlling-Ansatz den Nutzen dieser Maßnahme begründen?',
+        hint: 'Eine Antwort ist richtig.',
+        options:[
+          {text:'Durch Verweis auf die Anzahl der Schulungstage und die Zufriedenheit der Teilnehmenden.', correct:false, feedback:'Falsch. Teilnehmerzufriedenheit und Schulungsvolumen begründen keinen betriebswirtschaftlichen Nutzen.'},
+          {text:'Durch Gegenüberstellung von Schulungskosten und plausibel erwartetem Verbesserungspotenzial bei Kennzahlen wie Cashflow, EBIT oder Eigenkapitalquote – und Ableitung einer Projektrendite.', correct:true, feedback:'Richtig. Genau diesen Ansatz beschreiben die Unterlagen: Schulungskosten werden Veränderungspotenzialen bei finanzwirtschaftlichen Kennzahlen gegenübergestellt, um den Business Case transparent zu machen.'},
+          {text:'Durch den Nachweis, dass alle Führungskräfte am Programm teilgenommen haben.', correct:false, feedback:'Falsch. Vollständige Teilnahme ist ein Prozessindikator, aber kein Wirkungsnachweis.'},
+          {text:'Durch einen Vergleich mit Branchenbenchmarks zu Weiterbildungsbudgets.', correct:false, feedback:'Falsch. Externe Benchmarks sagen nichts über die unternehmensspezifische Wirkung einer Maßnahme aus.'}
+        ]
+      },
+      // Q5 – APPLICATION
+      {
+        id:'b2q5', type:'application',
+        text: 'Welche Qualitätsdimensionen muss ein PE-Controlling-System abdecken, um als belastbar zu gelten?',
+        hint: 'Mehrere Antworten sind richtig.',
+        options:[
+          {text:'Strategische Qualität: Anbindung der PE-Ziele an die Unternehmensstrategie.', correct:true, feedback:'Richtig. Ohne strategische Einbettung fehlt PE die Legitimation als steuerungsrelevantes Instrument.'},
+          {text:'Ziel- und Designqualität: präzise Lernziele und stimmiges Trainingsdesign.', correct:true, feedback:'Richtig. Nur klar formulierte Ziele erlauben eine spätere Überprüfung der Wirkung.'},
+          {text:'Transfer- und Ergebnisqualität: Nachweis der Anwendung im Arbeitsalltag und Verbesserung relevanter Kennzahlen.', correct:true, feedback:'Richtig. Das ist die anspruchsvollste, aber entscheidende Qualitätsdimension für das PE-Controlling.'},
+          {text:'Marktqualität: Vergleich der Weiterbildungskosten mit externen Trainingsanbietern.', correct:false, feedback:'Falsch. Externe Kostenvergleiche sind eine operative Beschaffungsfrage, keine eigenständige Qualitätsdimension des PE-Controllings.'}
+        ]
+      }
+    ]
+  },
+
+  {
+    id: 'b3',
+    number: 'Block 3',
+    title: 'Recruiting-Controlling',
+    questions: [
+      // Q1 – KNOWLEDGE
+      {
+        id:'b3q1', type:'knowledge',
+        text: 'Was misst „Time-to-Fill" im Recruiting-Controlling – und worin unterscheidet sie sich von „Time-to-Hire"?',
+        hint: 'Eine Antwort ist richtig.',
+        options:[
+          {text:'Time-to-Fill misst die Tage von der Ausschreibung bis zur Vertragsunterzeichnung; Time-to-Hire misst den Zeitraum von der Bedarfsfreigabe bis zum Arbeitsantritt.', correct:false, feedback:'Falsch. Die Definitionen sind vertauscht.'},
+          {text:'Time-to-Fill misst den Zeitraum von der Bedarfsfreigabe bis zum tatsächlichen Arbeitsantritt; Time-to-Hire misst die Tage von der Ausschreibung bis zur Vertragsunterzeichnung.', correct:true, feedback:'Richtig. Time-to-Fill ist für Kapazitätsplanung relevant, Time-to-Hire zeigt Prozessgeschwindigkeit ab Ausschreibung.'},
+          {text:'Beide Kennzahlen messen dasselbe, werden aber in unterschiedlichen Industrien verwendet.', correct:false, feedback:'Falsch. Sie messen unterschiedliche Zeitspannen und dienen unterschiedlichen Steuerungsfragen.'},
+          {text:'Time-to-Fill bezieht sich auf interne Besetzungen, Time-to-Hire auf externe Besetzungen.', correct:false, feedback:'Falsch. Diese Unterscheidung existiert in den Unterlagen nicht. Beide Kennzahlen beziehen sich auf den Zeitraum bis zur Stellenbesetzung, setzen aber an unterschiedlichen Ausgangspunkten an.'}
+        ]
+      },
+      // Q2 – KNOWLEDGE
+      {
+        id:'b3q2', type:'knowledge',
+        text: 'Welche Aussage zur Cost-per-Hire trifft laut den Unterlagen zu?',
+        hint: 'Mehrere Antworten sind richtig.',
+        options:[
+          {text:'Sie sollte interne und externe Kostenbestandteile umfassen.', correct:true, feedback:'Richtig. Dazu zählen Personalaufwand, Agenturkosten, Anzeigenbudget und Assessments.'},
+          {text:'Eine höhere Cost-per-Hire ist wirtschaftlich sinnvoll, wenn dadurch Time-to-Fill sinkt und Vakanzen vermieden werden.', correct:true, feedback:'Richtig. Die Unterlagen betonen explizit diesen Trade-off zwischen Recruitingkosten und Vakanzkosten.'},
+          {text:'Sie gewinnt ihren vollen Aussagewert erst im Zusammenhang mit Qualitätskennzahlen wie Early Turnover.', correct:true, feedback:'Richtig. Effizienzkennzahlen dürfen nie isoliert interpretiert werden.'},
+          {text:'Niedrige Cost-per-Hire bedeutet, dass das Recruiting qualitativ hochwertig ist.', correct:false, feedback:'Falsch. Niedrige Kosten sind kein Qualitätsbeweis – sie können auch auf unzureichende Auswahlverfahren zurückgehen.'}
+        ]
+      },
+      // Q3 – APPLICATION
+      {
+        id:'b3q3', type:'application',
+        text: 'Ein Unternehmen stellt fest, dass die Drop-out-Quote im Bewerbungsprozess besonders hoch ist, nachdem Kandidatinnen und Kandidaten eine Einladung zum Interview erhalten haben. Welche Schlüsse sind fachlich begründbar?',
+        hint: 'Mehrere Antworten können richtig sein.',
+        options:[
+          {text:'Lange Wartezeiten zwischen Einladung und Interviewtermin könnten Absprünge begünstigen.', correct:true, feedback:'Richtig. Hohe Drop-out-Quoten nach Einladung deuten häufig auf lange Reaktionszeiten oder schlechte Prozessorganisation hin.'},
+          {text:'Die Qualität des Arbeitgeberauftritts und die Candidate Experience in diesem Schritt sollten analysiert werden.', correct:true, feedback:'Richtig. Candidate Experience ist ein zentrales Analysefeld bei hohen Absprungraten.'},
+          {text:'Die Ursache liegt ausschließlich darin, dass zu viele ungeeignete Kandidatinnen und Kandidaten eingeladen werden.', correct:false, feedback:'Falsch. Das ist eine mögliche, aber nicht die einzige Erklärung. Prozessorganisation und Kommunikationsqualität sind ebenso zu prüfen.'},
+          {text:'Das Problem ist irrelevant, solange genügend Kandidatinnen und Kandidaten im Funnel bleiben.', correct:false, feedback:'Falsch. Hohe Drop-out-Raten signalisieren Qualitätsmängel im Prozess und können dazu führen, dass geeignete Kandidatinnen und Kandidaten verloren gehen.'}
+        ]
+      },
+      // Q4 – APPLICATION
+      {
+        id:'b3q4', type:'application',
+        text: 'Ein Unternehmen möchte das Recruiting-Controlling als Führungsinstrument etablieren. Was ist dafür laut den Unterlagen zwingend erforderlich?',
+        hint: 'Mehrere Antworten sind richtig.',
+        options:[
+          {text:'Kennzahlen müssen mit konkreten Recruiting-Zielen verknüpft sein, die sich aus der Unternehmensstrategie ableiten.', correct:true, feedback:'Richtig. Ohne strategische Einbettung bleibt Recruiting-Controlling bloßes Reporting.'},
+          {text:'Kennzahlen müssen in Planungen, Dashboards und Review-Routinen überführt werden.', correct:true, feedback:'Richtig. Erst die Verankerung in Routinen macht aus Kennzahlen ein Steuerungsinstrument.'},
+          {text:'Es genügt, die Kennzahlen einmal im Jahr zu erheben und dem Management zu berichten.', correct:false, feedback:'Falsch. Regelmäßige Analyse und Verknüpfung mit Maßnahmen sind notwendige Voraussetzungen.'},
+          {text:'Kennzahlen müssen segmentiert werden, z.B. nach Funktionen, Standorten oder Rollenleveln.', correct:true, feedback:'Richtig. Ohne Segmentierung verdecken Durchschnittswerte kritische Unterschiede.'}
+        ]
+      },
+      // Q5 – APPLICATION
+      {
+        id:'b3q5', type:'application',
+        text: 'Wozu dient die Kennzahl „Quality-of-Hire" – und wie unterscheidet sie sich von zeitbezogenen Recruiting-Kennzahlen?',
+        hint: 'Eine Antwort ist richtig.',
+        options:[
+          {text:'Quality-of-Hire misst, wie schnell neu eingestellte Mitarbeitende ihre volle Leistung erbringen, und ist damit eine Zeitkennzahl.', correct:false, feedback:'Falsch. Das beschreibt Time-to-Productivity. Quality-of-Hire bewertet Eignung und Leistungsfähigkeit nach einer definierten Zeitspanne.'},
+          {text:'Quality-of-Hire beurteilt die Eignung und Leistungsfähigkeit neuer Mitarbeitender nach einem definierten Zeitraum und zeigt damit, ob Recruiting nicht nur schnell, sondern auch passend war.', correct:true, feedback:'Richtig. Sie ist eine Wirkungskennzahl, die die reine Prozessgeschwindigkeit um eine Qualitätsdimension ergänzt.'},
+          {text:'Quality-of-Hire misst die Zufriedenheit der HR-Abteilung mit dem Ablauf des Recruitings.', correct:false, feedback:'Falsch. Die Zufriedenheit der Führungskräfte bildet der Hiring-Manager-Satisfaction-Score ab.'},
+          {text:'Quality-of-Hire und Time-to-Hire messen dasselbe, nur mit unterschiedlichen Methoden.', correct:false, feedback:'Falsch. Sie messen grundlegend unterschiedliche Aspekte: Geschwindigkeit vs. Besetzungsqualität.'}
+        ]
+      }
+    ]
+  },
+
+  {
+    id: 'b4',
+    number: 'Block 4',
+    title: 'Bildungscontrolling & Kirkpatrick-Modell',
+    questions: [
+      // Q1 – KNOWLEDGE
+      {
+        id:'b4q1', type:'knowledge',
+        text: 'Welche vier Ebenen umfasst das Kirkpatrick-Modell zur Evaluation von Trainingsmaßnahmen?',
+        hint: 'Eine Antwort ist richtig.',
+        options:[
+          {text:'Planung, Durchführung, Evaluation, Nachsteuerung', correct:false, feedback:'Falsch. Das sind Phasen des Bildungscontrolling-Regelkreises, nicht die vier Ebenen des Kirkpatrick-Modells.'},
+          {text:'Reaktion, Lernen, Verhalten, Ergebnisse', correct:true, feedback:'Richtig. Diese vier Ebenen bilden den Evaluationsrahmen: von der unmittelbaren Wahrnehmung über Lernzuwachs und Transfer bis zur betrieblichen Wirkung.'},
+          {text:'Input, Prozess, Output, Outcome', correct:false, feedback:'Falsch. Das ist eine allgemeine Wirkungslogik aus der Evaluationsforschung, nicht das Kirkpatrick-Modell.'},
+          {text:'Zufriedenheit, Kompetenz, Verhalten, ROI', correct:false, feedback:'Falsch. Das ist eine Mischung aus Kirkpatrick-Begriffen und Phillips-Erweiterung. Die vier Kirkpatrick-Ebenen lauten: Reaktion, Lernen, Verhalten, Ergebnisse.'}
+        ]
+      },
+      // Q2 – KNOWLEDGE
+      {
+        id:'b4q2', type:'knowledge',
+        text: 'Was ist der Untersuchungsgegenstand von Ebene 3 (Verhalten / Transfer) im Kirkpatrick-Modell?',
+        hint: 'Eine Antwort ist richtig.',
+        options:[
+          {text:'Ob Teilnehmende mit der Durchführung der Maßnahme zufrieden waren.', correct:false, feedback:'Falsch. Das ist der Gegenstand von Ebene 1 (Reaktion).'},
+          {text:'Welche Kenntnisse und Fertigkeiten in der Maßnahme erworben wurden.', correct:false, feedback:'Falsch. Das ist der Gegenstand von Ebene 2 (Lernen).'},
+          {text:'Ob das Gelernte im Arbeitsalltag angewendet wird und Routinen, Entscheidungsverhalten oder Methoden verändert.', correct:true, feedback:'Richtig. Ebene 3 fragt nach dem tatsächlichen Transfer in die Praxis – und damit nach der Frage, ob die Maßnahme das Verhalten wirklich verändert hat.'},
+          {text:'Ob sich Kennzahlen wie Produktivität oder Fehlerquote nach der Maßnahme verbessert haben.', correct:false, feedback:'Falsch. Das ist der Gegenstand von Ebene 4 (Ergebnisse).'}
+        ]
+      },
+      // Q3 – APPLICATION
+      {
+        id:'b4q3', type:'application',
+        text: 'Ein Unternehmen erfasst nach einer Qualifizierungsmaßnahme nur Teilnehmerzufriedenheit und Schulungstage. Welches Problem ergibt sich aus Sicht des Bildungscontrollings?',
+        hint: 'Eine Antwort ist richtig.',
+        options:[
+          {text:'Die Maßnahme ist damit ausreichend dokumentiert, weitere Evaluation wäre unverhältnismäßig aufwendig.', correct:false, feedback:'Falsch. Zufriedenheit und Schulungsvolumen entsprechen bestenfalls Ebene 1 des Kirkpatrick-Modells und lassen keine Aussagen über Lernzuwachs, Transfer oder betriebliche Wirkung zu.'},
+          {text:'Es fehlt jede Aussage über Lernzuwachs, Verhaltensveränderung und betriebliche Wirkung – der Wert der Maßnahme lässt sich damit nicht seriös beurteilen.', correct:true, feedback:'Richtig. Die Unterlagen betonen: Erst wenn Transfer in die Praxis und Wirkung auf Kennzahlen betrachtet werden, lässt sich der Wert einer Bildungsmaßnahme ernsthaft beurteilen.'},
+          {text:'Die Maßnahme war erfolgreich, wenn die Zufriedenheitswerte hoch sind.', correct:false, feedback:'Falsch. Positives Feedback ist laut Unterlagen eine Voraussetzung für Motivation und Transfer, ersetzt aber keine Wirkungsanalyse.'},
+          {text:'Das Problem lässt sich durch einen externen Benchmarkvergleich lösen.', correct:false, feedback:'Falsch. Externe Benchmarks ändern nichts an der fehlenden Wirkungsmessung im eigenen Betrieb.'}
+        ]
+      },
+      // Q4 – APPLICATION
+      {
+        id:'b4q4', type:'application',
+        text: 'Eine Qualifizierungsmaßnahme hat Kosten von 78.000 Euro verursacht. Im ersten Quartal danach zeigt sich eine Wirkung von geschätzten 45.000 Euro (reduzierte Nacharbeitskosten, weniger Stillstände). Wie ist dieser Befund zu beurteilen?',
+        hint: 'Mehrere Antworten sind richtig.',
+        options:[
+          {text:'Die Maßnahme hat sich bereits im ersten Quartal vollständig amortisiert.', correct:false, feedback:'Falsch. 45.000 Euro im ersten Quartal decken noch nicht die Gesamtkosten von 78.000 Euro. Die Amortisation hängt von der Nachhaltigkeit der Effekte ab.'},
+          {text:'Eine Fortführung oder Ausweitung der Maßnahme ist naheliegend, wenn die Effekte stabil sind.', correct:true, feedback:'Richtig. So beschreiben es die Unterlagen: Stabile Wirkungen rechtfertigen eine positive ROI-Beurteilung über den Betrachtungszeitraum hinaus.'},
+          {text:'Die Annahmen zur Wirkungsabschätzung müssen transparent gemacht und Fremdeinflüsse berücksichtigt werden.', correct:true, feedback:'Richtig. Bildungscontrolling muss offenlegen, auf welchen Daten und Überlegungen die monetäre Bewertung beruht.'},
+          {text:'Da der ROI im ersten Quartal negativ ist, war die Maßnahme ungeeignet.', correct:false, feedback:'Falsch. Ein negativer Saldo im ersten Quartal schließt eine langfristig positive Rendite nicht aus – entscheidend ist die Entwicklung über mehrere Perioden.'}
+        ]
+      },
+      // Q5 – APPLICATION
+      {
+        id:'b4q5', type:'application',
+        text: 'Welche Bedingungen müssen laut den Unterlagen erfüllt sein, damit Transfer auf Ebene 3 des Kirkpatrick-Modells gelingt?',
+        hint: 'Mehrere Antworten sind richtig.',
+        options:[
+          {text:'Klare Erwartungen an die Anwendung des Gelernten im Arbeitsalltag.', correct:true, feedback:'Richtig. Ohne klare Erwartungen fehlt der Handlungsrahmen für den Transfer.'},
+          {text:'Unterstützung durch das Arbeitsumfeld und passende Rahmenbedingungen.', correct:true, feedback:'Richtig. Transfer hängt auch davon ab, ob der Kontext ihn begünstigt oder behindert – eine Frage, die Bildungscontrolling aktiv klären sollte.'},
+          {text:'Ein möglichst langer Zeitraum zwischen Schulung und erster Anwendung, damit sich das Gelernte festigt.', correct:false, feedback:'Falsch. Die Unterlagen empfehlen keine zeitliche Verzögerung, sondern aktive Transferunterstützung durch Führungskräfte, Coaching und Praxisaufgaben.'},
+          {text:'Strukturierte Beobachtungen durch Vorgesetzte und Transferbefragungen nach einigen Monaten als Instrumente der Erfolgskontrolle.', correct:true, feedback:'Richtig. Das sind die in den Unterlagen genannten Instrumente zur Messung des Transfers auf Ebene 3.'}
+        ]
+      }
+    ]
+  },
+
+  {
+    id: 'b5',
+    number: 'Block 5',
+    title: 'Retention, Fluktuation & Engagement',
+    questions: [
+      // Q1 – KNOWLEDGE
+      {
+        id:'b5q1', type:'knowledge',
+        text: 'Wie wird die Frühfluktuation berechnet?',
+        hint: 'Eine Antwort ist richtig.',
+        options:[
+          {text:'(Freiwillige Austritte im Zeitraum / durchschnittlicher Personalstand) × 100', correct:false, feedback:'Falsch. Das ist die Berechnungsformel der allgemeinen Fluktuationsquote.'},
+          {text:'(Austritte im ersten Jahr / Neueintritte) × 100', correct:true, feedback:'Richtig. Frühfluktuation misst, wie viele Neueintritte innerhalb des ersten Jahres wieder ausscheiden – ein wichtiger Indikator für Probleme im Recruiting oder Onboarding.'},
+          {text:'(Mitarbeitende am Periodenende – Neueintritte) / Mitarbeitende am Periodenanfang × 100', correct:false, feedback:'Falsch. Das ist die Berechnungsformel der Retention-Rate gesamt.'},
+          {text:'(Gesamtauszahlungen für Trennungskosten / Anzahl der Austritte) × 100', correct:false, feedback:'Falsch. Das wäre ein Ansatz zur Kostenberechnung, keine Kennzahl für Frühfluktuation.'}
+        ]
+      },
+      // Q2 – KNOWLEDGE
+      {
+        id:'b5q2', type:'knowledge',
+        text: 'Welche Haupttreiber von Engagement werden in den Unterlagen konsistent genannt?',
+        hint: 'Mehrere Antworten sind richtig.',
+        options:[
+          {text:'Qualität der direkten Führung (Fairness, Feedback, Unterstützung)', correct:true, feedback:'Richtig. Führungsqualität ist einer der konsistentesten Engagement-Treiber in empirischen Studien.'},
+          {text:'Sinn und Bedeutsamkeit der Tätigkeit', correct:true, feedback:'Richtig. Sinnerleben ist ein zentraler Treiber des Engagements.'},
+          {text:'Entwicklungsmöglichkeiten und Karriereperspektiven', correct:true, feedback:'Richtig. Fehlende Entwicklungsperspektiven sind ein häufiger Austrittsgrund bei qualifizierten Mitarbeitenden.'},
+          {text:'Höhe der Vergütung als wichtigster Einzelfaktor', correct:false, feedback:'Falsch. Vergütung ist in den Unterlagen nicht als dominanter Einzelfaktor genannt. Führung, Sinn und Entwicklung werden als Haupttreiber beschrieben.'},
+          {text:'Autonomie, Gestaltungsspielraum und Teamklima', correct:true, feedback:'Richtig. Autonomie und Teamklima zählen laut Unterlagen zu den Haupttreibern von Engagement.'}
+        ]
+      },
+      // Q3 – APPLICATION
+      {
+        id:'b5q3', type:'application',
+        text: 'Ein Unternehmen weist eine insgesamt moderate Fluktuationsquote aus, gleichzeitig verlassen aber überdurchschnittlich viele Mitarbeitende aus einer spezifischen Fachgruppe das Unternehmen. Was folgt daraus für das HR-Controlling?',
+        hint: 'Eine Antwort ist richtig.',
+        options:[
+          {text:'Da die Gesamtquote moderat ist, besteht kein Handlungsbedarf.', correct:false, feedback:'Falsch. Gesamtquoten können kritische Segmentmuster verdecken. Die Unterlagen betonen ausdrücklich, dass Segmentierung oft wesentlich aussagekräftiger ist als der Gesamtwert.'},
+          {text:'Gesamtquoten verdecken möglicherweise strategische Risiken; die segmentierte Analyse ist hier entscheidend, insbesondere für Schlüsselrollen und kritische Fachgruppen.', correct:true, feedback:'Richtig. Genau dieses Problem adressieren die Unterlagen: Selbst geringe absolute Zahlen bei Schlüsselpositionen können ein strategisches Risiko darstellen.'},
+          {text:'Die Ursache liegt immer in einer unzureichenden Vergütung der betreffenden Gruppe.', correct:false, feedback:'Falsch. Die Ursachen können vielfältig sein – Führung, fehlende Entwicklungsperspektiven, Arbeitsorganisation, Marktattraktivität der Gruppe. Eine vorschnelle Einzelursache greift zu kurz.'},
+          {text:'Das Problem löst sich durch eine Erhöhung des Weiterbildungsbudgets.', correct:false, feedback:'Falsch. Weiterbildungsbudgets adressieren mögliche Entwicklungsdefizite, aber nicht zwingend die Ursache der erhöhten Fluktuation in dieser Gruppe.'}
+        ]
+      },
+      // Q4 – APPLICATION
+      {
+        id:'b5q4', type:'application',
+        text: 'Ein Unternehmen erhebt alle zwei Jahre eine umfangreiche Mitarbeiterbefragung, wertet die Ergebnisse intern aus, nimmt aber keine sichtbaren Maßnahmen vor. Welche Wirkung ist auf Engagement und Retention zu erwarten?',
+        hint: 'Eine Antwort ist richtig.',
+        options:[
+          {text:'Allein die Befragung signalisiert Wertschätzung und wirkt positiv auf das Engagement.', correct:false, feedback:'Falsch. Befragungen ohne erkennbare Konsequenzen können das Gegenteil bewirken: Zynismus und sinkende Rücklaufquoten bei Folgebefragungen.'},
+          {text:'Ohne sichtbare Maßnahmen kann die Befragung das Vertrauen untergraben und das Engagement senken, weil Mitarbeitende erleben, dass Rückmeldungen folgenlos bleiben.', correct:true, feedback:'Richtig. Die Unterlagen betonen, dass Engagement-Messungen nur dann Wirkung entfalten, wenn sie in Maßnahmenableitungen münden und Routinen verankert sind.'},
+          {text:'Solange die Gesamtergebnisse gut sind, sind keine Maßnahmen notwendig.', correct:false, feedback:'Falsch. Gute Gesamtergebnisse können ungünstige Segment-Muster verbergen, und das Ausbleiben von Maßnahmen untergräbt das Vertrauen in den Prozess.'},
+          {text:'Die Wirkung ist neutral, solange die Ergebnisse nicht öffentlich kommuniziert werden.', correct:false, feedback:'Falsch. Fehlende Transparenz bei Befragungsergebnissen erhöht in der Regel die Skepsis der Mitarbeitenden.'}
+        ]
+      },
+      // Q5 – APPLICATION
+      {
+        id:'b5q5', type:'application',
+        text: 'Welche Elemente sollte ein wirksames Retention-Management-System laut den Unterlagen umfassen?',
+        hint: 'Mehrere Antworten sind richtig.',
+        options:[
+          {text:'Systematische Auswertung von Fluktuationsmustern mit Verknüpfung von Engagement-Daten und Exit-Interviews.', correct:true, feedback:'Richtig. Das ist die Analyseebene, die Retention-Management fundiert und von Einzelmaßnahmen unterscheidet.'},
+          {text:'Wettbewerbsfähige Vergütungssysteme, Karrieremodelle und interne Mobilität als strukturelle Maßnahmen.', correct:true, feedback:'Richtig. Strukturelle Maßnahmen sind ein eigenständiger Hebel im Retention-Management.'},
+          {text:'Frühwarnsysteme mit definierten Schwellwerten für Fluktuation, Engagement und Krankenstand.', correct:true, feedback:'Richtig. Frühwarnsysteme mit Ampellogik gehören zu den empfohlenen Steuerungsinstrumenten.'},
+          {text:'Ausschließliche Fokussierung auf finanzielle Anreize, da diese nachweislich den stärksten Bindungseffekt haben.', correct:false, feedback:'Falsch. Die Unterlagen beschreiben Retention-Management als Zusammenspiel mehrerer Hebel – Analyse, strukturelle Maßnahmen, Führungs- und Kulturarbeit sowie Frühwarnsysteme.'}
+        ]
+      }
+    ]
+  }
+];
+
+// =============================================
+// STATE
+// =============================================
+const state = {
+  scores: {},      // blockId -> score
+  completed: {},   // blockId -> bool
+  current: {
+    blockId: null,
+    qIndex: 0,
+    selected: new Set(),
+    submitted: false,
+    blockScoreThisRun: 0
+  }
+};
+
+// Load from sessionStorage
+try {
+  const saved = sessionStorage.getItem('hrc_state');
+  if(saved) {
+    const parsed = JSON.parse(saved);
+    state.scores = parsed.scores || {};
+    state.completed = parsed.completed || {};
+  }
+} catch(e){}
+
+function saveState() {
+  try { sessionStorage.setItem('hrc_state', JSON.stringify({scores:state.scores, completed:state.completed})); } catch(e){}
+}
+
+// =============================================
+// ROUTING
+// =============================================
+function showScreen(id) {
+  document.getElementById('home-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById(id).style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+function goHome() {
+  renderHome();
+  showScreen('home-screen');
+}
+
+// =============================================
+// HOME
+// =============================================
+function renderHome() {
+  const grid = document.getElementById('blocks-grid');
+  grid.innerHTML = '';
+
+  let totalScore = 0;
+  let totalCompleted = 0;
+  BLOCKS.forEach(b => {
+    if(state.completed[b.id]) {
+      totalScore += (state.scores[b.id] || 0);
+      totalCompleted++;
+    }
+  });
+
+  // Overall progress
+  const op = document.getElementById('overall-progress');
+  if(totalCompleted > 0) {
+    op.style.display = 'flex';
+    document.getElementById('overall-fill').style.width = (totalScore/25*100)+'%';
+    document.getElementById('overall-score-text').textContent = totalScore+' / 25 Punkte';
+  } else {
+    op.style.display = 'none';
+  }
+
+  BLOCKS.forEach(b => {
+    const done = state.completed[b.id];
+    const score = state.scores[b.id] || 0;
+    const pct = done ? (score/5*100) : 0;
+
+    const card = document.createElement('div');
+    card.className = 'block-card' + (done ? ' completed' : '');
+    card.onclick = () => startBlock(b.id);
+    card.innerHTML = `
+      <div class="block-number">${b.number}</div>
+      <div class="block-title">${b.title}</div>
+      <div class="block-meta">5 Fragen · 2× Wissen, 3× Anwendung</div>
+      ${done ? `<div class="block-score-badge done">${score}/5 Pkt.</div>` : '<div class="block-score-badge">Starten</div>'}
+      <div class="block-progress"><div class="block-progress-fill" style="width:${pct}%"></div></div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// =============================================
+// QUIZ
+// =============================================
+function startBlock(blockId) {
+  state.current.blockId = blockId;
+  state.current.qIndex = 0;
+  state.current.blockScoreThisRun = 0;
+  showScreen('quiz-screen');
+  renderQuestion();
+}
+
+function getBlock() { return BLOCKS.find(b => b.id === state.current.blockId); }
+
+function renderQuestion() {
+  const block = getBlock();
+  const q = block.questions[state.current.qIndex];
+  const total = block.questions.length;
+  const idx = state.current.qIndex;
+
+  state.current.selected = new Set();
+  state.current.submitted = false;
+
+  // Nav
+  document.getElementById('quiz-block-label').textContent = block.number;
+  document.getElementById('quiz-block-title').textContent = block.title;
+  document.getElementById('quiz-counter').textContent = `Frage ${idx+1} von ${total}`;
+  document.getElementById('quiz-prog-fill').style.width = ((idx/total)*100)+'%';
+
+  // Question
+  const container = document.getElementById('question-container');
+  const isApp = q.type === 'application';
+  container.innerHTML = `
+    <div class="question-card">
+      <div class="question-header">
+        <span class="question-tag ${isApp?'application':''}">${isApp?'Anwendung':'Wissen'}</span>
+        <div class="question-text">${q.text}</div>
+      </div>
+      <div class="question-hint">${q.hint}</div>
+      <div class="options-list" id="options-list"></div>
+      <div class="question-actions">
+        <div class="result-inline" id="result-inline"></div>
+        <button class="btn-submit" id="btn-submit" onclick="submitAnswer()" disabled>Auswerten</button>
+        <button class="btn-next ${idx+1<total?'':'visible'}" id="btn-next" onclick="nextQuestion()">
+          ${idx+1<total ? 'Nächste Frage →' : 'Ergebnis anzeigen'}
+        </button>
+      </div>
+    </div>
+  `;
+
+  const list = document.getElementById('options-list');
+  q.options.forEach((opt, i) => {
+    const item = document.createElement('div');
+    item.className = 'option-item';
+    item.id = 'opt-'+i;
+    item.onclick = () => toggleOption(i, item);
+    item.innerHTML = `
+      <div class="option-checkbox" id="chk-${i}"></div>
+      <div class="option-content">
+        <div class="option-text">${opt.text}</div>
+        <div class="option-feedback" id="fb-${i}">${opt.feedback}</div>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function toggleOption(i, item) {
+  if(state.current.submitted) return;
+  if(state.current.selected.has(i)) {
+    state.current.selected.delete(i);
+    item.classList.remove('selected');
+    document.getElementById('chk-'+i).textContent = '';
+  } else {
+    state.current.selected.add(i);
+    item.classList.add('selected');
+    document.getElementById('chk-'+i).textContent = '✓';
+  }
+  document.getElementById('btn-submit').disabled = state.current.selected.size === 0;
+}
+
+function submitAnswer() {
+  state.current.submitted = true;
+  const block = getBlock();
+  const q = block.questions[state.current.qIndex];
+
+  const correctSet = new Set(q.options.map((o,i)=>o.correct?i:-1).filter(x=>x>=0));
+  const selected = state.current.selected;
+
+  // Check if fully correct
+  const isCorrect = selected.size === correctSet.size &&
+    [...selected].every(i => correctSet.has(i));
+
+  if(isCorrect) state.current.blockScoreThisRun++;
+
+  // Style options
+  q.options.forEach((opt, i) => {
+    const item = document.getElementById('opt-'+i);
+    const chk = document.getElementById('chk-'+i);
+    item.classList.add('locked');
+    item.classList.remove('selected');
+    chk.textContent = '';
+
+    if(selected.has(i) && opt.correct) {
+      item.classList.add('correct-reveal');
+      chk.textContent = '✓';
+    } else if(selected.has(i) && !opt.correct) {
+      item.classList.add('wrong-reveal');
+      chk.textContent = '✗';
+    } else if(!selected.has(i) && opt.correct) {
+      item.classList.add('missed-reveal');
+      chk.textContent = '✓';
+    }
+  });
+
+  // Result inline
+  const ri = document.getElementById('result-inline');
+  if(isCorrect) {
+    ri.className = 'result-inline correct';
+    ri.textContent = '✓ Richtig!';
+  } else {
+    ri.className = 'result-inline wrong';
+    ri.textContent = '✗ Nicht vollständig richtig.';
+  }
+
+  document.getElementById('btn-submit').style.display = 'none';
+  document.getElementById('btn-next').classList.add('visible');
+}
+
+function nextQuestion() {
+  const block = getBlock();
+  const total = block.questions.length;
+  state.current.qIndex++;
+
+  if(state.current.qIndex >= total) {
+    // Done
+    const score = state.current.blockScoreThisRun;
+    state.scores[block.id] = score;
+    state.completed[block.id] = true;
+    saveState();
+    showResult(block, score);
+  } else {
+    renderQuestion();
+    window.scrollTo(0,0);
+  }
+}
+
+// =============================================
+// RESULT
+// =============================================
+function showResult(block, score) {
+  showScreen('result-screen');
+  const pct = score/5*100;
+  let icon, msg;
+  if(score===5) { icon='🏆'; msg='Perfekt! Alle Fragen korrekt beantwortet.'; }
+  else if(score>=4) { icon='🎯'; msg='Sehr gut! Du beherrschst dieses Thema sicher.'; }
+  else if(score>=3) { icon='👍'; msg='Gut. Einzelne Aspekte lohnen noch eine Wiederholung.'; }
+  else if(score>=2) { icon='📖'; msg='Solide Grundlage – eine Wiederholung des Blocks empfiehlt sich.'; }
+  else { icon='🔄'; msg='Gelegenheit zum Vertiefen – schau dir den Block nochmals an.'; }
+
+  const barColor = pct>=80 ? '#1a7a3c' : pct>=60 ? '#2a5a8c' : '#e8a020';
+
+  let totalScore=0;
+  BLOCKS.forEach(b => { if(state.completed[b.id]) totalScore += (state.scores[b.id]||0); });
+
+  document.getElementById('result-card-main').innerHTML = `
+    <div class="result-icon">${icon}</div>
+    <h2>${block.number}: ${block.title}</h2>
+    <div class="result-score">${score}<span> / 5 Punkte</span></div>
+    <div class="result-bar-outer">
+      <div class="result-bar-inner" style="width:${pct}%;background:${barColor};"></div>
+    </div>
+    <p>${msg}</p>
+    <div class="summary-grid">
+      ${BLOCKS.map(b => {
+        const done = state.completed[b.id];
+        const s = state.scores[b.id]||0;
+        return `<div class="summary-item">
+          <div class="s-label">${b.number}</div>
+          <div class="s-score" style="color:${done?(s>=4?'var(--correct)':s>=2?'var(--primary)':'var(--accent)'):'var(--text-muted)'}">${done?s:'-'}</div>
+          <div class="s-max">von 5</div>
+        </div>`;
+      }).join('')}
+      <div class="summary-item">
+        <div class="s-label">Gesamt</div>
+        <div class="s-score">${totalScore}</div>
+        <div class="s-max">von 25</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btn-retry-block').onclick = () => startBlock(block.id);
+}
+
+// =============================================
+// INIT
+// =============================================
+renderHome();
+showScreen('home-screen');
+</script>
+</body>
+</html>
